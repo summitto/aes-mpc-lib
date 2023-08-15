@@ -1,0 +1,12 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index fa06fd7..15a568b 100755
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -12,5 +12,5 @@ include_directories(${EMP-TOOL_INCLUDE_DIRS})
+ install(FILES cmake/emp-ot-config.cmake DESTINATION cmake/)
+ install(DIRECTORY emp-ot DESTINATION include/)
+ 
+-ENABLE_TESTING()
+-ADD_SUBDIRECTORY(test)
++# ENABLE_TESTING()
++# ADD_SUBDIRECTORY(test)

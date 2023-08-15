@@ -1,0 +1,9 @@
+[submodule "emp-ot"]
+	path = emp-ot
+	url = git@github.com:emp-toolkit/emp-ot.git
+[submodule "emp-agmpc"]
+	path = emp-agmpc
+	url = git@github.com:emp-toolkit/emp-agmpc.git
+[submodule "emp-tool"]
+	path = emp-tool
+	url = git@github.com:emp-toolkit/emp-tool.git
