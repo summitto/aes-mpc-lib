@@ -1,0 +1,9 @@
+.vscode/
+
+build/
+node_modules/
+swig-build/
+
+core
+*.so
+*.o

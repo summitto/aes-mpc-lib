@@ -1,0 +1,81 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index d9abb31..b8f1905 100755
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -51,9 +51,10 @@ emp-tool/circuits/files/bristol_fashion/Keccak_f.txt.cpp
+ ENDIF(${CRYPTO_IN_CIRCUIT})
+ 
+ 
+-
++set(OPENSSL_USE_STATIC_LIBS TRUE)
+ find_package(OpenSSL REQUIRED)
+ include_directories(${OPENSSL_INCLUDE_DIR})
++target_link_libraries(${_name} OpenSSL::Crypto)
+ 
+ 
+ add_library(${NAME} SHARED ${sources})
+@@ -62,5 +63,5 @@ install(DIRECTORY emp-tool DESTINATION include/)
+ install(DIRECTORY cmake/ DESTINATION cmake/)
+ install(TARGETS ${NAME} DESTINATION lib)
+ 
+-ENABLE_TESTING()
+-ADD_SUBDIRECTORY(test)
++#ENABLE_TESTING()
++#ADD_SUBDIRECTORY(test)
+diff --git a/cmake/emp-tool-config.cmake b/cmake/emp-tool-config.cmake
+index c913270..2b2e14a 100644
+--- a/cmake/emp-tool-config.cmake
++++ b/cmake/emp-tool-config.cmake
+@@ -1,4 +1,6 @@
++set(OPENSSL_USE_STATIC_LIBS TRUE)
+ find_package(OpenSSL REQUIRED)
++target_link_libraries(${_name} OpenSSL::Crypto)
+ 
+ find_path(EMP-TOOL_INCLUDE_DIR NAMES emp-tool/emp-tool.h)
+ find_library(EMP-TOOL_LIBRARY NAMES emp-tool)
+diff --git a/emp-tool/io/highspeed_net_io_channel.h b/emp-tool/io/highspeed_net_io_channel.h
+index 4400bad..6673907 100644
+--- a/emp-tool/io/highspeed_net_io_channel.h
++++ b/emp-tool/io/highspeed_net_io_channel.h
+@@ -166,7 +166,7 @@ class HighSpeedNetIO : public IOChannel<HighSpeedNetIO> { public:
+ 		mysocket = socket(AF_INET, SOCK_STREAM, 0);
+ 		int reuse = 1;
+ 		setsockopt(mysocket, SOL_SOCKET, SO_REUSEADDR, (const char *)&reuse, sizeof(reuse));
+-		if (bind(mysocket, (struct sockaddr *)&serv, sizeof(struct sockaddr)) < 0) {
++		if (::bind(mysocket, (struct sockaddr *)&serv, sizeof(struct sockaddr)) < 0) {
+ 			perror("error: bind");
+ 			exit(1);
+ 		}
+diff --git a/emp-tool/io/net_io_channel.h b/emp-tool/io/net_io_channel.h
+index 6566564..17906a1 100644
+--- a/emp-tool/io/net_io_channel.h
++++ b/emp-tool/io/net_io_channel.h
+@@ -46,7 +46,7 @@ class NetIO: public IOChannel<NetIO> { public:
+ 			mysocket = socket(AF_INET, SOCK_STREAM, 0);
+ 			int reuse = 1;
+ 			setsockopt(mysocket, SOL_SOCKET, SO_REUSEADDR, (const char*)&reuse, sizeof(reuse));
+-			if(bind(mysocket, (struct sockaddr *)&serv, sizeof(struct sockaddr)) < 0) {
++			if(::bind(mysocket, (struct sockaddr *)&serv, sizeof(struct sockaddr)) < 0) {
+ 				perror("error: bind");
+ 				exit(1);
+ 			}
+@@ -121,7 +121,8 @@ class NetIO: public IOChannel<NetIO> { public:
+ 	void send_data_internal(const void * data, size_t len) {
+ 		size_t sent = 0;
+ 		while(sent < len) {
+-			size_t res = fwrite(sent + (char*)data, 1, len - sent, stream);
++			// size_t res = fwrite(sent + (char*)data, 1, len - sent, stream);
++			size_t res = send(consocket, sent + (char*)data, len - sent, 0);
+ 			if (res > 0)
+ 				sent+=res;
+ 			else
+@@ -136,7 +137,8 @@ class NetIO: public IOChannel<NetIO> { public:
+ 		has_sent = false;
+ 		size_t sent = 0;
+ 		while(sent < len) {
+-			size_t res = fread(sent + (char*)data, 1, len - sent, stream);
++			// size_t res = fread(sent + (char*)data, 1, len - sent, stream);
++			size_t res = recv(consocket, sent + (char*)data, len - sent, 0);
+ 			if (res > 0)
+ 				sent += res;
+ 			else
